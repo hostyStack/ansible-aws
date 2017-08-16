@@ -24,9 +24,9 @@ Prerequisites:
 5. Building RDS
 6. Building the MySQL-Client
 
-# This playbook deploys the whole AWS Network, Bastion, Web, and RDS Instances.  Web Configuration is currently manual
-# - Must have credentials exported for AWS IAM
-# - RDS may take up to 30 minutes to deploy the instance
+- This playbook deploys the whole AWS Network, Bastion, Web, and RDS Instances.  Web Configuration is currently manual
+- Must have credentials exported for AWS IAM
+- RDS may take up to 30 minutes to deploy the instance
 
 Architecture of Ansible Cloud Integration:
 
@@ -39,10 +39,12 @@ The control machine acts as the Ansible server where all the playbooks and confi
 
 To setup the ansible workstation the following commands are used
 
+```
 $ sudo apt-get install software-properties-common
 $ sudo apt-add-repository ppa:ansible/ansible
 $ sudo apt-get update
 $ sudo apt-get install ansible
+```
 
 AWS Cloud Provider:
 Amazon Web Services (AWS) is a secure public cloud services provider that offers compute, storage, networking, monitoring and other functionality that helps in application deployment.
@@ -50,8 +52,10 @@ Amazon Web Services (AWS) is a secure public cloud services provider that offers
 Configuring the workstation- The Ansible AWS modules uses the Python Boto library internally.
 The following commands are used to set up the boto run
 
+```
 $ sudo easy_install pip
 $ sudo pip install boto
+```
 
 # AWS Authentication with Ansible
 
@@ -70,13 +74,16 @@ $ export AWS_ACCESS_KEY_ID= 'YOUR_AWS_API_KEY'
 $ export AWS_SECRET_ACCESS_KEY=  'YOUR_AWS_API_SECRET_KEY'
 
 OR
+
 Prepare the ansible vars file and encrypt it using the ansible vault
 
+```
 ../roles//vars/main.yml
     ---
     ec2_access_key: "--REMOVED--"
     ec2_secret_key: "--REMOVED--"
 The ~/.vault_pass.txt contains the secret password.
+```
 
 # Ansible Imagination Dev Site
 To help make the roles reusable and easily updated, the variables were placed in the main site.yml file for configuring all of the aspects from the network, bastion, and RDS.
@@ -91,17 +98,17 @@ To help make the roles reusable and easily updated, the variables were placed in
   vars:
 
 # Global AWS Variables
-    region: eu-west-2
+    region: eu-west-1
     aws_network_name: dev
 
 # VPC Variables
     vpc_cidr: 10.4.0.0/16
     public_subnet_cidr: 10.4.0.0/24
-    public_subnet_az: eu-west-2a
+    public_subnet_az: eu-west-1a
     private_subnet_1_cidr: eu.4.1.0/24
-    private_subnet_1_az: eu-west-2b
+    private_subnet_1_az: eu-west-1b
     private_subnet_2_cidr: 10.4.2.0/24
-    private_subnet_2_az: eu-west-2c
+    private_subnet_2_az: eu-west-1c
 
 # Bastion Variables
     ec2_id: "ami-996372fd"
@@ -124,7 +131,18 @@ To help make the roles reusable and easily updated, the variables were placed in
   - aws-rds
 ```
 
+# Building the AWS Network
+
+– Build VPC
+– Build Subnets
+– 1 Public subnet to access the environment
+– 2 Private subnets for internal traffic. Two because the RDS Subnet group requires two for redundancy.
+– Internet Gateway for the VPC
+– Routing Table to allow the three subnets to talk to one another and then send any non subnet traffic to the Internet Gateway
+– Security groups to allow specific traffic into specific instances
+
 ## Building the MySQL-Client
+```
 - name: Create Bastion
   ec2:
     region: "{{ region }}"
@@ -144,27 +162,35 @@ To help make the roles reusable and easily updated, the variables were placed in
     vpc_subnet_id: "{{ private_subnet['subnets'][0]['id'] }}"
     assign_public_ip: yes
   register: bastion_facts
+```
 
+## Connecting to a DB Instance Running the MySQL Database Engine
+```
+$ mysql -h myinstance.123456789012.eu-west-1.rds.amazonaws.com -P 3306 -u mymasteruser -p
+```
 
-### Conclusion:
+## Conclusion:
 
 Ansible integrates with AWS to build the network and instances. The Ansible AWS modules make it easy to manage and configure Amazon’s EC2 instances.
 
 ## Issues:
-If you're using Ansible >2.2.0, you can set the ansible_python_interpreter configuration option to /usr/bin/python3:
-
+- If you're using Ansible >2.2.0, you can set the ansible_python_interpreter configuration option to /usr/bin/python3:
+```
 ansible my_ubuntu_host -m ping -e 'ansible_python_interpreter=/usr/bin/python3'
-
+```
 https://docs.ansible.com/ansible/latest/python_3_support.html
 
-decided to upgrade to the latest version of ansible (2.3.0.0) as per jeromegamez comment. Then I created a...
+- decided to upgrade to the latest version of ansible (2.3.0.0). Then I created a...
 
+```
 group_vars/all
 
 ..file and added...
 
 ansible_python_interpreter: /usr/bin/python3
+```
 
 # Sources:
 - https://blog.scottlowe.org/2015/12/11/using-ssh-multiplexing/
 - https://www.cyberciti.biz/faq/linux-unix-osx-bsd-ssh-multiplexing-to-speed-up-ssh-connections/
+- https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html
