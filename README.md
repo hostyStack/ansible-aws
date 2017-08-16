@@ -111,7 +111,7 @@ To help make the roles reusable and easily updated, the variables were placed in
     private_subnet_2_az: eu-west-1c
 
 # Bastion Variables
-    ec2_id: "ami-996372fd"
+    ec2_id: "ami-785db401"
     key_pair: "imagination-key"
 
 # RDS Variables
