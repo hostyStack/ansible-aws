@@ -1,12 +1,12 @@
 ---
 # tasks file for aws-rds
-- name: "Get Subnet ID for markwardt-private1"
+- name: "Get Subnet ID for imagination-private1"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
       "tag:Name": "{{ aws_network_name }}-private1"
   register: subnet_private1
-    
+
 - name: "Get Subnet ID for {{ aws_network_name }}-private2"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
@@ -71,7 +71,3 @@
 - name: RDS rds results
   debug:
     var: rds_results
-
-
-
-

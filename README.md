@@ -61,6 +61,12 @@ $ sudo pip install boto
 
 After installation, create a file named boto and provide the necessary credentials.
 
+AWS uses public-key cryptography to secure the login information for your instance. A Linux instance has no password; you use a key pair to log in to your instance securely.
+
+```
+$ ansible-playbook -i hosts keypair.yml
+```
+
 Create file ~/.boto
 ```
      [Credentials]
@@ -70,8 +76,10 @@ Create file ~/.boto
 
 To run Ansible on your workstation, you need to set environment variables by specifying your Secret Key and Access Key.
 
+```
 $ export AWS_ACCESS_KEY_ID= 'YOUR_AWS_API_KEY'
 $ export AWS_SECRET_ACCESS_KEY=  'YOUR_AWS_API_SECRET_KEY'
+```
 
 OR
 
