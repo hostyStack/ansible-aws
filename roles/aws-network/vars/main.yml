@@ -1,0 +1,10 @@
+---
+#region: us-east-1
+#aws_network_name: markwardt
+#vpc_cidr: 10.4.0.0/16
+#public_subnet_cidr: 10.4.0.0/24
+#public_subnet_az: us-east-1a
+#private_subnet_1_cidr: 10.4.1.0/24
+#private_subnet_1_az: us-east-1b
+#private_subnet_2_cidr: 10.4.2.0/24
+#private_subnet_2_az: us-east-1c

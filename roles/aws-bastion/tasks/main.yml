@@ -1,0 +1,58 @@
+---
+- name: "Get Public Subnet ID"
+  ec2_vpc_subnet_facts:
+    region: "{{ region }}"
+    filters:
+      "tag:Name": "{{ aws_network_name }}-public"
+  register: public_subnet
+
+- name: Subnet ID
+  debug:
+    var: public_subnet['subnets'][0]['id']
+
+- name: Get bastion SG ID
+  ec2_group_facts:
+    region: "{{ region }}"
+    filters:
+      group-name: "{{ aws_network_name }}-bastion"
+  register: bastion_sg
+
+- name: Bastion SG ID
+  debug:
+    var: bastion_sg['security_groups'][0]['group_id']
+
+- name: Create Bastion
+  ec2:
+    region: "{{ region }}"
+    key_name: "{{ key_pair }}"
+    group_id: "{{ bastion_sg['security_groups'][0]['group_id'] }}"
+    instance_type: t2.micro
+    image: "{{ ec2_id }}"
+    wait: yes
+    wait_timeout: 500
+    exact_count: 1
+    instance_tags:
+      Name: "{{ aws_network_name }}-bastion"
+      Environment: Dev
+    count_tag: 
+      Name: "{{ aws_network_name }}-bastion"
+      Environment: Dev
+    vpc_subnet_id: "{{ public_subnet['subnets'][0]['id'] }}"
+    assign_public_ip: yes
+  register: bastion_facts
+
+- debug: "var=bastion_facts"
+
+- name: Capture Bastion public IP
+  set_fact: 
+    bastion_public_ip: "{{ bastion_facts['instances'][0]['public_ip'] }}"
+  when: bastion_facts['instances'] | length > 0
+
+- name: Capture Bastion public IP
+  set_fact: 
+    bastion_public_ip: "{{ bastion_facts['tagged_instances'][0]['public_ip'] }}"
+  when: bastion_facts['tagged_instances'] | length > 0
+
+- name: Display Public IP
+  debug:
+    var: bastion_public_ip

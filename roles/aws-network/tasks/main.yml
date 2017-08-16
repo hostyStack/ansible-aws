@@ -1,0 +1,156 @@
+---
+- name: Build VPC
+  ec2_vpc_net:
+    name: "{{ aws_network_name }}-vpc"
+    state: present
+    cidr_block: "{{ vpc_cidr }}"
+    region: "{{ region }}"
+
+- name: Get VPC ID
+  ec2_vpc_net_facts:
+    region: "{{ region }}"
+    filters:
+      "tag:Name": "{{ aws_network_name }}-vpc"
+  register: vpc_facts
+
+- name: VPC ID
+  debug: 
+    var: vpc_facts['vpcs'][0]['id']
+
+- name: Create Private Subnet 1
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    cidr: "{{ private_subnet_1_cidr }}"
+    region: "{{ region }}"
+    az: "{{ private_subnet_1_az }}"
+    resource_tags:
+      Name: "{{ aws_network_name }}-private1"
+  register: private_subnet_1
+
+- name: subnet MySQL database servers ID 1
+  debug: 
+    var: private_subnet_1['subnet']['id']
+
+- name: Create Private Subnet 2
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    cidr: "{{ private_subnet_2_cidr }}"
+    region: "{{ region }}"
+    az: "{{ private_subnet_2_az }}"
+    resource_tags:
+      Name: "{{ aws_network_name }}-private2"
+  register: private_subnet_2
+
+- name: subnet MySQL database servers ID 2
+  debug: 
+    var: private_subnet_2['subnet']['id']
+
+- name: Create public subnet
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    cidr: "{{ public_subnet_cidr }}"
+    region: "{{ region }}"
+    az: "{{ public_subnet_az }}"
+    resource_tags:
+      Name: "{{ aws_network_name }}-public"
+  register: public_subnet
+
+- name: Subnet public ID
+  debug: 
+    var: public_subnet['subnet']['id']
+
+- name: Create internet gateway    
+  ec2_vpc_igw:
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    state: present
+    region: "{{ region }}"
+  register: igw
+
+- name: Internet gateway ID
+  debug: 
+    var: igw['gateway_id']
+
+- name: Set up public subnet route table
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    region: "{{ region }}"
+    state: present
+    tags:
+      Name: "{{ aws_network_name }}-public"
+    subnets:
+      - "{{ private_subnet_1['subnet']['id'] }}"
+      - "{{ private_subnet_2['subnet']['id'] }}"
+      - "{{ public_subnet['subnet']['id'] }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{ igw['gateway_id'] }}"
+  register: public_route_table
+
+- name: Bastion Security group
+  ec2_group:
+    name: "{{ aws_network_name }}-bastion"
+    state: present
+    description: Security group for SSH Bastion to get into the servers
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+  register: bastion_sg
+
+- name: Bastion Security group ID
+  debug: 
+    var: bastion_sg['group_id']
+
+- name: Web Security group
+  ec2_group:
+    name: "{{ aws_network_name }}-web"
+    state: present
+    description: Security group for SSH Bastion to get into the servers
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        group_id: "{{ bastion_sg['group_id'] }}"
+  register: web_sg
+
+- name: Web Security group ID
+  debug: 
+    var: web_sg['group_id']
+
+- name: MySQL Security group
+  ec2_group:
+    name: "{{ aws_network_name }}-private"
+    state: present
+    description: Security group for private access
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    region: "{{ region }}"
+    rules:
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        group_id: "{{ bastion_sg['group_id'] }}"
+      - proto: tcp
+        from_port: 3306
+        to_port: 3306
+        group_id: "{{ web_sg['group_id'] }}"
+  register: mysql_sg
+
+- name: MySQL Security group ID
+  debug: 
+    var: mysql_sg['group_id']  

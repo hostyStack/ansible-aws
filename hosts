@@ -1,0 +1,7 @@
+[bastion]
+bastion ansible_host=35.176.218.50 ansible_user=ubuntu
+
+[web]
+web ansible_host=35.176.51.58 ansible_user=ubuntu
+
+[mysql]

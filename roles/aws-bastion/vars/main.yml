@@ -1,0 +1,5 @@
+---
+#region: eu-west-2
+#aws_network_name: imagination
+#ec2_id: "ami-996372fd"
+#key_pair: "imagination-key"
