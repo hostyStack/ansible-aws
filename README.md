@@ -151,25 +151,7 @@ To help make the roles reusable and easily updated, the variables were placed in
 
 ## Building the MySQL-Client
 ```
-- name: Create Bastion
-  ec2:
-    region: "{{ region }}"
-    key_name: "{{ key_pair }}"
-    group_id: "{{ mysql_sg['security_groups'][0]['group_id'] }}"
-    instance_type: t2.micro
-    image: "{{ ec2_id }}"
-    wait: yes
-    wait_timeout: 500
-    exact_count: 1
-    instance_tags:
-      Name: "{{ aws_network_name }}-mysql"
-      Environment: Dev
-    count_tag:
-      Name: "{{ aws_network_name }}-mysql"
-      Environment: Dev
-    vpc_subnet_id: "{{ private_subnet['subnets'][0]['id'] }}"
-    assign_public_ip: yes
-  register: bastion_facts
+
 ```
 
 ## Connecting to a DB Instance Running the MySQL Database Engine
