@@ -1,6 +1,13 @@
 # ansible-aws
 Ansible for AWS
 
+# Incomplete will be finished by 17 Aug
+- Create CleanUP Folder
+- Fix Ubuntu 16.04 deploy or Packing AMI with Packer
+- Organise README.md
+-
+
+
 Task below:
 
 Task:
