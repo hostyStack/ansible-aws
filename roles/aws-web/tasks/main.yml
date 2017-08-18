@@ -55,4 +55,4 @@
   when: web_facts['tagged_instances'] | length > 0
 
 ##    - name: Add Web to hosts file
-##      shell: "echo 'web ansible_host={{ web_public_ip }} ansible_user=ubuntu' >> {{ host_path }};echo '' >> {{ host_path }}"
+##      shell: "echo 'web ansible_host={{ web_private_ip }} ansible_user=ubuntu' >> {{ host_path }};echo '' >> {{ host_path }}"

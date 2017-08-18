@@ -6,6 +6,9 @@
 
 ### Ansible ###
 *.retry
+keys/
+keys
+.ssh_config
 
 ### macOS ###
 *.DS_Store

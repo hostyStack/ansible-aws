@@ -1,6 +1,6 @@
 ---
 - name: Update apt cache if needed.
-  apt: update_cache=yes cache_valid_time=3600
+  apt: name=* state=latest update_cache=yes cache_valid_time=3600
 
 - name: install ntp
   apt: name=ntp state=present

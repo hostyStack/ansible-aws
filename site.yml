@@ -6,6 +6,7 @@
   connection: local
   # become: yes
   # become_method: su
+  remote_user: root
   gather_facts: false
   vars:
 
@@ -14,17 +15,18 @@
     aws_network_name: dev
 
  # VPC Variables
-    vpc_cidr: 10.4.0.0/16
-    public_subnet_cidr: 10.4.1.0/24
-    public_subnet_az: eu-west-1a
-    private_subnet_1_cidr: 10.4.2.0/24
+    vpc_cidr: 10.5.0.0/16
+    public_subnet_1_cidr: 10.5.1.0/24
+    public_subnet_1_az: eu-west-1a
+    private_subnet_1_cidr: 10.5.2.0/24
     private_subnet_1_az: eu-west-1b
-    private_subnet_2_cidr: 10.4.3.0/24
+    private_subnet_2_cidr: 10.5.3.0/24
     private_subnet_2_az: eu-west-1c
 
 # Bastion Variables
     ec2_id: "ami-785db401"
     key_pair: "imagination-key"
+    keypair_file: "imagination-key.pem"
 
 # RDS Variables
     rds_user: root
@@ -44,16 +46,18 @@
     changed_when: output.stdout != ""
 
   roles:
-  - common
-  - aws-network
-  - aws-bastion
+  # - keygen
+  # - aws-network
+  # - aws-bastion
+  # - common
   # - aws-web
-  # - aws-rds
+  - aws-rds
   # - mysql-client
 
 - hosts: web
 
   roles:
-  - common
-  - aws-web
+  # - aws-bastion
+  # - common
+  # - aws-web
   # - mysql-client

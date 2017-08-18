@@ -1,29 +1,36 @@
----
-- name: Check if MySQL is already installed.
-  stat: path=/etc/init.d/mysql
-  register: mysql_installed
+- name: Install MySQL packages
+   apt: pkg={{item}} state=installed
+   with_items:
+     - bundler
+     - mysql-client-core-5.6
+     - libmysqlclient-dev
+     - python-mysqldb
+     - mysql-client
+     - build-essential
+- name: Remove the MySQL test database
+   action: mysql_db db=test state=absent
 
-- name: Update apt cache if MySQL is not yet installed.
-  apt: update_cache=yes
-  when: mysql_installed.stat.exists == false
 
-- name: Ensure MySQL Python libraries are installed.
-  apt: "name=python-mysqldb state=installed"
+- name: Create global my.cnf
+   template: src=etc.my.cnf dest=/etc/mysql/my.cnf
 
-- name: Ensure MySQL packages are installed.
-  apt: "name={{ item }} state=installed"
-  with_items: "{{ mysql_packages }}"
-  register: deb_mysql_install_packages
 
-# Because Ubuntu starts MySQL as part of the install process, we need to stop
-# mysql and remove the logfiles in case the user set a custom log file size.
-- name: Ensure MySQL is stopped after initial install.
-  service: "name={{ mysql_daemon }} state=stopped"
-  when: mysql_installed.stat.exists == false
+- name: Add deploy DB user and allow access to news_* databases
+   mysql_user: name={{user}} password={{password}} host="%" priv=db1.*:ALL/db2.*:ALL,GRANT state=present
 
-- name: Delete innodb log files created by apt package after initial install.
-  file: path={{ mysql_datadir }}/{{item}} state=absent
-  with_items:
-          - "ib_logfile0"
-          - "ib_logfile1"
-  when: mysql_installed.stat.exists == false
+
+- name: Set root password
+   mysql_user: name=root password={{password}} host="{{item}}" priv=*.*:ALL,GRANT state=present
+   with_items:
+     - "{{ansible_hostname}}"
+     - 127.0.0.1
+     - ::1
+     - localhost
+
+
+- name: Create local my.cnf for root user
+   template: src=my.cnf dest=/root/.my.cnf owner=root mode=0600
+
+
+- name: Restart the MySQL service
+   action: service name=mysql state=restarted enabled=true
