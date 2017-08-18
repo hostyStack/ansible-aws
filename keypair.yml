@@ -3,7 +3,7 @@
   connection: local
   gather_facts: no
   vars:
-    region: eu-west-2
+    region: eu-west-1
     keyname: imagination-key
   tasks:
     - name: create key pair

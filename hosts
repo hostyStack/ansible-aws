@@ -1,7 +1,16 @@
+[local]
+#localhost ansible_connection=local
+localhost
+
 [bastion]
-bastion ansible_host=35.176.218.50 ansible_user=ubuntu
+bastion ansible_host=54.171.69.84 ansible_user=ubuntu
 
 [web]
-web ansible_host=35.176.51.58 ansible_user=ubuntu
+web ansible_host=10.4.1.175 ansible_user=ubuntu
 
 [mysql]
+#mysql-client
+
+[all:vars]
+#ansible_python_interpreter=/usr/bin/python
+#ansible_python_interpreter=/usr/bin/python3

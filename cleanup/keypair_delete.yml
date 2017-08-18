@@ -1,0 +1,12 @@
+---  
+- hosts: localhost  
+  connection: local  
+  gather_facts: no  
+  vars:
+    region: eu-west-1
+  tasks:  
+    - name: remove key pair
+      ec2_key:
+        region: "{{ region }}"
+        name: imagination-key
+        state: absent
