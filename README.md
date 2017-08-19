@@ -1,20 +1,11 @@
-# ansible-aws
-Ansible for AWS
+# Ansible for AWS
 
-# Incomplete will be finished by 17 Aug
-- Create CleanUP Folder
-- Fix Ubuntu 16.04 deploy or Packing AMI with Packer
-- Organise README.md
--
-
-# Task below:
-
-Task:
+## Task:
 Write an Ansible Role that includes a number of tasks:
 - Power up an RDS instance and set the security group so that only the EC2 instance (below) can connect to it on port 3306 (via internal IP addresses)
 - Power up an EC2 instance, running Ubuntu 16.04 and the latest version of the software package mysql-client
 
-Instructions should be provided on how to run the role, including how we can pass in the following parameters:
+### Instructions should be provided on how to run the role, including how we can pass in the following parameters:
 - instance sizes
 - AWS region
 - AWS creds
@@ -22,58 +13,39 @@ Instructions should be provided on how to run the role, including how we can pas
 
 We will run on one of our test AWS environments. The goal here is to produce a reusable role.
 
-## Prerequisites:
+Prerequisites:
 
-1. Ansible Workstation Setup
-2. AWS Authentication with Ansible
-3. Building the AWS Network
-4. Building the Bastion
+1. AWS Authentication with Ansible
+2. Building the AWS Network
+3. Building the Bastion
 5. Building RDS
 6. Building the MySQL-Client
 
-- This playbook deploys the whole AWS Network, Bastion, MySQL-Client, and RDS Instances.  MySQL-Client Configuration is currently manual
+- This playbook deploys the whole AWS Network, Bastion, Web, and RDS Instances.  Web Configuration is currently manual
 - Must have credentials exported for AWS IAM
 - RDS may take up to 30 minutes to deploy the instance
 
-# Ansible Workstation Setup
-
-## Control Machine:
-The control machine acts as the Ansible server where all the playbooks and configuration files are located. It can be configured on common Linux Distribution, OS X or BSDs. For this example, we have configured Ubuntu OS on the workstation.
-
-#### To setup the ansible workstation the following commands are used
-
-```
-$ sudo apt-get install software-properties-common
-$ sudo apt-add-repository ppa:ansible/ansible
-$ sudo apt-get update
-$ sudo apt-get install ansible
-```
-
-#### Configuring the workstation- The Ansible AWS modules uses the Python Boto library internally.
-The following commands are used to set up the boto run
-
-```
-$ sudo easy_install pip
-$ sudo pip install boto
-```
+Ansible Workstation Setup:
+# Setup Environment
 
 # AWS Authentication with Ansible
 
 After installation, create a file named boto and provide the necessary credentials.
 
-Create file ~/.boto
-```
-     [Credentials]
-     aws_access_key_id = (access key)
-     aws_secret_access_key = (secret access key)
-```
-
 AWS uses public-key cryptography to secure the login information for your instance. A Linux instance has no password; you use a key pair to log in to your instance securely.
+
 ```
 $ ansible-playbook -i hosts keypair.yml
 ```
 
-To run Ansible on your workstation, you need to set environment variables by specifying your Secret Key and Access Key.
+Create file ~/.boto
+```
+[Credentials]
+aws_access_key_id = (access key)
+aws_secret_access_key = (secret access key)
+```
+
+You need to set environment variables by specifying your Secret Key and Access Key.
 
 ```
 $ export AWS_ACCESS_KEY_ID= 'YOUR_AWS_API_KEY'
@@ -121,10 +93,9 @@ To help make the roles reusable and easily updated, the variables were placed in
       - { param: 'general_log', value: '1' }
 
   roles:
-#  - common
   - aws-network
   - aws-bastion
-#  - aws-rds
+  - aws-rds
 ```
 
 # Building the AWS Network
@@ -142,22 +113,10 @@ To help make the roles reusable and easily updated, the variables were placed in
 
 ```
 
-## Connecting to a Bastion Host
-```
-$ ssh -i ~/.ssh/imagination-key.pem ubuntu@ec2-54-171-69-84.eu-west-1.compute.amazonaws.com
-```
 ## Connecting to a DB Instance Running the MySQL Database Engine
 ```
-$ ssh 10.4.1.175 -F ssh.cfg
 $ mysql -h myinstance.123456789012.eu-west-1.rds.amazonaws.com -P 3306 -u mymasteruser -p
 ```
-
-## Ad-Hoc Commands
-ansible bastion -i hosts -a 'systemctl status ntpd' -s
-ansible bastion -i hosts -a 'systemctl status ntp' -s
-
-## CleanUP
-
 
 ## Conclusion:
 
@@ -178,18 +137,6 @@ group_vars/all
 ..file and added...
 
 ansible_python_interpreter: /usr/bin/python3
-```
-
-AWS Ubuntu 16.04 LTS AMI and Ansible 2.2.0.0
-Workaround for me:
-```
-pre_tasks:
-
-name: 'install python2'
-raw: sudo apt-get -y install python-simplejson
-
-name: 'install aptitude'
-raw: sudo apt-get -y install aptitude
 ```
 
 # Sources:
