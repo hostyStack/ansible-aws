@@ -4,29 +4,29 @@
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ aws_network_name }}-private1"
+      "tag:Name": "{{ vpc_name }}-private1"
   register: subnet_private_1
 
-- name: "Get Subnet ID for {{ aws_network_name }}-private2"
+- name: "Get Subnet ID for {{ vpc_name }}-private2"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ aws_network_name }}-private2"
+      "tag:Name": "{{ vpc_name }}-private2"
   register: subnet_private_2
 
 - name: Get MySQL SG ID
   ec2_group_facts:
     region: "{{ region }}"
     filters:
-      group-name: "{{ aws_network_name }}-private"
+      group-name: "{{ vpc_name }}-private"
   register: private_sg
 
 - name: Build RDS Subnet Group
   rds_subnet_group:
     region: "{{ region }}"
     state: present
-    name: "{{ aws_network_name }}-subnetgroup"
-    description: Subnet Group for {{ aws_network_name }}
+    name: "{{ vpc_name }}-subnetgroup"
+    description: Subnet Group for {{ vpc_name }}
     subnets:
       - "{{ subnet_private_1['subnets'][0]['id'] }}"
       - "{{ subnet_private_2['subnets'][0]['id'] }}"
@@ -39,8 +39,8 @@
 - name: Build MySQL Parameters
   rds_param_group:
     state: present
-    name: "{{ aws_network_name }}-parameters"
-    description: "{{ aws_network_name }} Parameters"
+    name: "{{ vpc_name }}-parameters"
+    description: "{{ vpc_name }} Parameters"
     engine: "{{ rds_parameter_engine }}"
     immediate: no
     region: "{{ region }}"
@@ -50,22 +50,22 @@
 - name: Build RDS Instance
   rds:
     command: create
-    instance_name: "{{ aws_network_name }}-rds"
+    instance_name: "{{ vpc_name }}-rds"
     db_engine: MySQL
     size: "{{ rds_size_gb }}"
     instance_type: "{{ rds_instance_type }}"
     username: "{{ rds_user }}"
     password: "{{ rds_pass }}"
     region: "{{ region }}"
-    subnet: "{{ aws_network_name }}-subnetgroup"
-    parameter_group: "{{ aws_network_name }}-parameters"
+    subnet: "{{ vpc_name }}-subnetgroup"
+    parameter_group: "{{ vpc_name }}-parameters"
     engine_version: "{{ rds_instance_engine }}"
     vpc_security_groups: "{{ private_sg['security_groups'][0]['group_id'] }}"
     wait: yes
     wait_timeout: 1800
     multi_zone: yes
     tags:
-      Environment: "{{ aws_network_name }}"
+      Environment: "{{ vpc_name }}"
   register: rds_results
 
 - name: RDS rds results

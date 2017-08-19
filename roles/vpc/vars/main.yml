@@ -1,6 +1,6 @@
 ---
 #region: eu-west-2
-#aws_network_name: dev
+#vpc_name: dev
 #vpc_cidr: 10.4.0.0/16
 #public_subnet_cidr: 10.4.0.0/24
 #public_subnet_az: eu-west-2a

@@ -3,14 +3,11 @@
 #localhost
 
 [bastion]
-bastion ansible_host=34.253.192.73 ansible_user=ubuntu
+bastion ansible_host=54.93.88.15 ansible_user=ubuntu
 
 [web]
 #web ansible_host=10.4.1.175 ansible_user=ubuntu
 
-[mysql]
-#mysql-client
-
 [all:vars]
-#ansible_python_interpreter=/usr/bin/python
-#ansible_python_interpreter=/usr/bin/python3
+#ansible_python_interpreter: /usr/local/bin/python
+#ansible_python_interpreter: /usr/local/bin/python3

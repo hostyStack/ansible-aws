@@ -4,7 +4,7 @@
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ aws_network_name }}-private1"
+      "tag:Name": "{{ vpc_name }}-private1"
   register: private_subnet_1
 
 - name: Subnet ID
@@ -15,7 +15,7 @@
   ec2_group_facts:
     region: "{{ region }}"
     filters:
-      group-name: "{{ aws_network_name }}-web"
+      group-name: "{{ vpc_name }}-web"
   register: web_sg
 
 - name: Web SG ID
@@ -33,10 +33,10 @@
     wait_timeout: 500
     exact_count: 1
     instance_tags:
-      Name: "{{ aws_network_name }}-web"
+      Name: "{{ vpc_name }}-web"
       Environment: Dev
     count_tag:
-      Name: "{{ aws_network_name }}-web"
+      Name: "{{ vpc_name }}-web"
       Environment: Dev
     vpc_subnet_id: "{{ private_subnet_1['subnets'][0]['id'] }}"
     assign_public_ip: no

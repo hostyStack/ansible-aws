@@ -152,6 +152,10 @@ $ ssh 10.4.1.175 -F ssh.cfg
 $ mysql -h myinstance.123456789012.eu-west-1.rds.amazonaws.com -P 3306 -u mymasteruser -p
 ```
 
+## Ad-Hoc Commands
+ansible bastion -i hosts -a 'systemctl status ntpd' -s
+ansible bastion -i hosts -a 'systemctl status ntp' -s
+
 ## CleanUP
 
 
@@ -174,6 +178,18 @@ group_vars/all
 ..file and added...
 
 ansible_python_interpreter: /usr/bin/python3
+```
+
+AWS Ubuntu 16.04 LTS AMI and Ansible 2.2.0.0
+Workaround for me:
+```
+pre_tasks:
+
+name: 'install python2'
+raw: sudo apt-get -y install python-simplejson
+
+name: 'install aptitude'
+raw: sudo apt-get -y install aptitude
 ```
 
 # Sources:

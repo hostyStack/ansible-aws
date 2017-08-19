@@ -3,7 +3,7 @@
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ aws_network_name }}-public1"
+      "tag:Name": "{{ vpc_name }}-public1"
   register: public_subnet_1
 
 - name: Subnet ID
@@ -14,7 +14,7 @@
   ec2_group_facts:
     region: "{{ region }}"
     filters:
-      group-name: "{{ aws_network_name }}-bastion"
+      group-name: "{{ vpc_name }}-bastion"
   register: bastion_sg
 
 - name: Bastion SG ID
@@ -32,10 +32,10 @@
     wait_timeout: 500
     exact_count: 1
     instance_tags:
-      Name: "{{ aws_network_name }}-bastion"
+      Name: "{{ vpc_name }}-bastion"
       Environment: Dev
     count_tag:
-      Name: "{{ aws_network_name }}-bastion"
+      Name: "{{ vpc_name }}-bastion"
       Environment: Dev
     vpc_subnet_id: "{{ public_subnet_1['subnets'][0]['id'] }}"
     assign_public_ip: yes

@@ -1,5 +1,5 @@
 ---
 #region: eu-west-2
-#aws_network_name: imagination
+#vpc_name: imagination
 #ec2_id: "ami-785db401"
 #key_pair: "imagination-key"

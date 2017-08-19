@@ -1,7 +1,7 @@
 ---
 - name: Build VPC
   ec2_vpc_net:
-    name: "{{ aws_network_name }}-vpc"
+    name: "{{ vpc_name }}-vpc"
     state: present
     cidr_block: "{{ vpc_cidr }}"
     region: "{{ region }}"
@@ -10,7 +10,7 @@
   ec2_vpc_net_facts:
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ aws_network_name }}-vpc"
+      "tag:Name": "{{ vpc_name }}-vpc"
   register: vpc_facts
 
 - name: VPC ID
@@ -25,7 +25,7 @@
     region: "{{ region }}"
     az: "{{ private_subnet_1_az }}"
     resource_tags:
-      Name: "{{ aws_network_name }}-private1"
+      Name: "{{ vpc_name }}-private1"
   register: private_subnet_1
 
 - name: subnet MySQL database servers ID 1
@@ -40,7 +40,7 @@
     region: "{{ region }}"
     az: "{{ private_subnet_2_az }}"
     resource_tags:
-      Name: "{{ aws_network_name }}-private2"
+      Name: "{{ vpc_name }}-private2"
   register: private_subnet_2
 
 - name: subnet MySQL database servers ID 2
@@ -55,7 +55,7 @@
     region: "{{ region }}"
     az: "{{ public_subnet_1_az }}"
     resource_tags:
-      Name: "{{ aws_network_name }}-public1"
+      Name: "{{ vpc_name }}-public1"
   register: public_subnet_1
 
 - name: Subnet Public ID
@@ -79,7 +79,7 @@
     region: "{{ region }}"
     state: present
     tags:
-      Name: "{{ aws_network_name }}-public1"
+      Name: "{{ vpc_name }}-public1"
     subnets:
       - "{{ private_subnet_1['subnet']['id'] }}"
       - "{{ private_subnet_2['subnet']['id'] }}"
@@ -91,7 +91,7 @@
 
 - name: Bastion Security group
   ec2_group:
-    name: "{{ aws_network_name }}-bastion"
+    name: "{{ vpc_name }}-bastion"
     state: present
     description: Security group for SSH Bastion to get into the servers
     vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
@@ -109,7 +109,7 @@
 
 - name: Web Security group
   ec2_group:
-    name: "{{ aws_network_name }}-web"
+    name: "{{ vpc_name }}-web"
     state: present
     description: Security group for SSH Bastion to get into the servers
     vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
@@ -131,7 +131,7 @@
 
 - name: MySQL Security group
   ec2_group:
-    name: "{{ aws_network_name }}-private"
+    name: "{{ vpc_name }}-private"
     state: present
     description: Security group for private access
     vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
