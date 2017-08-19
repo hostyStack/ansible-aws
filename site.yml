@@ -47,13 +47,13 @@
 - hosts: bastion
   become: yes
 
-  pre_tasks:
-    - name: Update apt cache if needed.
-      shell: apt-get update && apt-get clean
+  # pre_tasks:
+  #   - name: Update apt cache if needed.
+  #     shell: apt-get update && apt-get clean
 
   roles:
   # - bastion
-  # - common
+  - common
   - mysql-client
 
 # - hosts: web
