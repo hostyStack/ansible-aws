@@ -1,13 +1,6 @@
-#[local]
-#localhost ansible_connection=local
-#localhost
-
-[bastion]
+[instance]
 bastion ansible_host=35.158.126.158 ansible_user=ubuntu
+natclient ansible_host=35.158.126.158 ansible_user=ubuntu
 
 #[web]
-web ansible_host=10.5.2.177 ansible_user=ubuntu
-
-#[all:vars]
-#ansible_python_interpreter=/usr/bin/python
-#ansible_python_interpreter=/usr/bin/python3
+#web ansible_host=10.5.2.177 ansible_user=ubuntu

@@ -168,9 +168,9 @@
   debug:
     var: bastion_sg['group_id']
 
-- name: Web Security group
+- name: natClient Security group
   ec2_group:
-    name: "{{ vpc_name }}-web"
+    name: "{{ vpc_name }}-natclient"
     state: present
     description: Security group for SSH Bastion to get into the servers
     vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
@@ -184,11 +184,11 @@
         from_port: 22
         to_port: 22
         group_id: "{{ bastion_sg['group_id'] }}"
-  register: web_sg
+  register: natclient_sg
 
-- name: Web Security group ID
+- name: natClient Security group ID
   debug:
-    var: web_sg['group_id']
+    var: natclient_sg['group_id']
 
 - name: MySQL Security group
   ec2_group:
@@ -209,7 +209,7 @@
       - proto: tcp
         from_port: 3306
         to_port: 3306
-        group_id: "{{ web_sg['group_id'] }}"
+        group_id: "{{ natclient_sg['group_id'] }}"
   register: mysql_sg
 
 - name: MySQL Security group ID

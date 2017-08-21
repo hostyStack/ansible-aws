@@ -2,9 +2,9 @@
 - { include: debian.yml, become: yes }
 - { include: ntp.yml, become: yes }
 
-- name: set timezone to Europe/London
-  timezone:
-    name: Europe/London
+# - name: set timezone to Europe/London
+#   timezone:
+#     name: Europe/London
 
 - name: get the current date and time
   shell: date

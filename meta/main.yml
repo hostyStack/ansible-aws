@@ -12,5 +12,5 @@ galaxy_info:
   - vpc
   - ec2
   - rds
-  - database:mysql
+  - database:mysql-client
 dependencies: []

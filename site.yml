@@ -5,7 +5,6 @@
   hosts: localhost
   connection: local
   # become: yes
-  # remote_user: ubuntu
   gather_facts: false
   vars:
 
@@ -38,41 +37,14 @@
       - { param: 'general_log', value: '1' }
 
   roles:
-  # - keygen
-   - vpc
-   # - bastion
-   # - web
-   # - rds
-   # - nat
-   # - common
+  - vpc
+  - bastion
+  - natclient
+  # - rds
 
-# - hosts: bastion
-#   become: yes
-#
-#   # pre_tasks:
-#   #   - name: Update apt cache if needed.
-#   #     shell: apt-get update && apt-get clean
-#
-#   # pre_tasks:
-#   #   - name: install python
-#   #     raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python python-pip python3 python3-pip)"
-#   #     register: output
-#   #     changed_when: output.stdout != ""
-#
-#   roles:
-# #   # - bastion
-#   - common
-#   - mysql-client
-#   # - { role: zerodeth.mysql-client, become: yes }
+- hosts: natclient
+  # become: yes
 
-# - hosts: web
-#   become: yes
-# # #
-# #   pre_tasks:
-# #     - name: Update apt cache if needed.
-# #       shell: apt-get update && apt-get clean
-# #
-#   roles:
-#   - common
-#   - mysql-client
-#
+  roles:
+  - common
+  - mysql-client
