@@ -24,10 +24,10 @@
 - name: Create Bastion
   ec2:
     region: "{{ region }}"
-    key_name: "{{ key_pair }}"
+    key_name: "{{ keypair_name }}"
     group_id: "{{ bastion_sg['security_groups'][0]['group_id'] }}"
     instance_type: t2.micro
-    image: "{{ ec2_id }}"
+    image: "{{ ami_id }}"
     wait: yes
     wait_timeout: 500
     exact_count: 1

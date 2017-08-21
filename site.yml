@@ -5,7 +5,6 @@
   hosts: localhost
   connection: local
   # become: yes
-  # become_method: su
   # remote_user: ubuntu
   gather_facts: false
   vars:
@@ -16,7 +15,7 @@
 
  # VPC Variables
     vpc_cidr: 10.5.0.0/16
-    public_subnet_1_cidr: 10.5.1.0/24
+    public_subnet_1_cidr: 10.5.0.0/24
     public_subnet_1_az: eu-central-1a
     private_subnet_1_cidr: 10.5.2.0/24
     private_subnet_1_az: eu-central-1b
@@ -24,8 +23,8 @@
     private_subnet_2_az: eu-central-1c
 
 # Bastion Variables
-    ec2_id: "ami-1e339e71"
-    key_pair: "imagination-key"
+    ami_id: "ami-1e339e71"
+    keypair_name: "hosty-key"
 
 # RDS Variables
     rds_user: root
@@ -33,36 +32,46 @@
     rds_instance_type: db.t2.small
     rds_size_gb: 15
     rds_parameter_engine: mysql5.6
-    rds_instance_engine: 5.6.35
+    rds_instance_engine: 5.6.34
     rds_parameters:
       - { param: 'binlog_format', value: 'ROW' }
       - { param: 'general_log', value: '1' }
 
   roles:
   # - keygen
-   - vpc
-   - bastion
+   # - vpc
+   # - bastion
+   # - web
    - rds
+   # - common
 
-- hosts: bastion
-  become: yes
-
-  # pre_tasks:
-  #   - name: Update apt cache if needed.
-  #     shell: apt-get update && apt-get clean
-
-  roles:
-  # - bastion
-  - common
-  - mysql-client
+# - hosts: bastion
+#   become: yes
+#
+#   # pre_tasks:
+#   #   - name: Update apt cache if needed.
+#   #     shell: apt-get update && apt-get clean
+#
+#   # pre_tasks:
+#   #   - name: install python
+#   #     raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python python-pip python3 python3-pip)"
+#   #     register: output
+#   #     changed_when: output.stdout != ""
+#
+#   roles:
+# #   # - bastion
+#   - common
+#   - mysql-client
+#   # - { role: zerodeth.mysql-client, become: yes }
 
 # - hosts: web
 #   become: yes
-#
-#   pre_tasks:
-#     - name: Update apt cache if needed.
-#       shell: apt-get update && apt-get clean
-#
+# # #
+# #   pre_tasks:
+# #     - name: Update apt cache if needed.
+# #       shell: apt-get update && apt-get clean
+# #
 #   roles:
-#   # - web
+#   - common
+#   - mysql-client
 #

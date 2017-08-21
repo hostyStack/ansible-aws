@@ -79,7 +79,7 @@
     region: "{{ region }}"
     state: present
     tags:
-      Name: "{{ vpc_name }}-public1"
+      Name: "{{ vpc_name }}-public"
     subnets:
       - "{{ private_subnet_1['subnet']['id'] }}"
       - "{{ private_subnet_2['subnet']['id'] }}"

@@ -2,4 +2,4 @@
 #region: eu-west-2
 #vpc_name: imagination
 #ec2_id: "ami-785db401"
-#key_pair: "imagination-key"
+#keypair_name: "imagination-key"

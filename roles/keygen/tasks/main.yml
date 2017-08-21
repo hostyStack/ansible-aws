@@ -2,9 +2,16 @@
 - name: create key pair
   ec2_key:
     region: "{{ region }}"
-    name: "{{ key_pair }}"
+    name: "{{ keypair_name }}"
   register: keypair
 
-- name: write to local file
-  copy: content="{{ keypair.key.private_key }}" dest="~/.ssh/{{ keypair_file }}.pem" mode=0600
+- name: Create keys/region directory
+  file: path=keys/{{ region }} state=directory mode=0700
+  when: keypair.changed
+
+- name: write generated key to local file
+  copy:
+    content: "{{ keypair.key.private_key }}"
+    dest: keys/{{ keypair_file }}.pem"
+    mode: 0600
   when: keypair.changed

@@ -1,0 +1,16 @@
+galaxy_info:
+  author: ZeroDeth
+  description: Ansible role for AWS
+  company: Hosty
+  license: license (BSD)
+  min_ansible_version: 1.9
+  platforms:
+    - name: Ubuntu
+      versions:
+      - xenial
+  galaxy_tags:
+  - vpc
+  - ec2
+  - rds
+  - database:mysql
+dependencies: []

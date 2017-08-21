@@ -107,7 +107,7 @@ To help make the roles reusable and easily updated, the variables were placed in
 
 # Bastion Variables
     ec2_id: "ami-785db401"
-    key_pair: "imagination-key"
+    keypair_name: "imagination-key"
 
 # RDS Variables
     rds_user: root

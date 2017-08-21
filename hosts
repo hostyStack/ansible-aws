@@ -1,13 +1,13 @@
-[local]
+#[local]
 #localhost ansible_connection=local
 #localhost
 
 [bastion]
-bastion ansible_host=54.93.88.15 ansible_user=ubuntu
+bastion ansible_host=35.158.126.158 ansible_user=ubuntu
 
-[web]
-#web ansible_host=10.4.1.175 ansible_user=ubuntu
+#[web]
+web ansible_host=10.5.2.177 ansible_user=ubuntu
 
-[all:vars]
-#ansible_python_interpreter: /usr/local/bin/python
-#ansible_python_interpreter: /usr/local/bin/python3
+#[all:vars]
+#ansible_python_interpreter=/usr/bin/python
+#ansible_python_interpreter=/usr/bin/python3

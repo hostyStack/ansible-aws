@@ -42,8 +42,8 @@
     private_subnet_2_az: eu-west-1c
 
 # Bastion Variables
-    ec2_id: "ami-785db401"
-    key_pair: "imagination-key"
+    ami_id: "ami-785db401"
+    keypair_name: "hosty-key"
 
 # RDS Variables
     rds_user: root
