@@ -156,7 +156,7 @@ Example **Site.yml**
 – NAT Gateway for Client Instance
 – Security groups to allow specific traffic into specific instances
 
-# [Connecting to a DB Instance Running the MySQL Database Engine](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html)
+## [Connecting to a DB Instance Running the MySQL Database Engine](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html)
 
 Set up this tunnel every time you log into your remote EC2 instance and log into it with whatever name you prefer:
 
@@ -179,6 +179,7 @@ Then, **Connect to RDS through EC2 < Bastion for example, on Linux or OSX**:
 
 ```
 $ ssh -L 3306:dev-rds.cj3xloa8ykzj.eu-central-1.rds.amazonaws.com:3306 10.5.2.57 -F sshd.cfg -v
+```
 
 And you can then access your remote MySQL server as if it was running locally:
 ```
@@ -188,16 +189,19 @@ $ mysql -h dev-rds.cj3xloa8ykzj.eu-central-1.rds.amazonaws.com -P 3306 -u root -
 # Issues:
 ## Python:
 - If you're using Ansible >2.2.0, you can set the ansible_python_interpreter configuration option to `/usr/bin/python3`: [Python 3 Support](https://docs.ansible.com/ansible/latest/python_3_support.html)
+
 ```
 ansible my_ubuntu_host -m ping -e 'ansible_python_interpreter=/usr/bin/python3'
 ```
 
 - Then decided to upgrade to the latest version of ansible (2.3+). Then I created a **group_vars/all** file and added...
+
 ```
 ansible_python_interpreter: /usr/bin/python3
 ```
 
 ~~- Testing from another ENV Others two solutions help from macOS~~
+
 ```
 ---
 - name: install python
