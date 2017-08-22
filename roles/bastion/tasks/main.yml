@@ -57,32 +57,32 @@
   debug:
     var: bastion_public_ip
 
-- name: Remove lines with unwanted occurrences of ListenAddress
-  local_action: lineinfile
-                dest="./hosts"
-                regexp="^ansible_host=(?!{{ bastion_public_ip|replace('.', '\.') }}|{{ bastion_public_ip|replace('.', '\.') }})"
-                state=absent
-
-- name: Listen on public and private IP
-  local_action: lineinfile
-                dest="./hosts"
-                line={{ item.line }}
-                insertafter={{ item.insertafter }}
-  with_items:
-    - { line: "bastion ansible_host={{ bastion_public_ip }}", insertafter: "^#?bastion" }
-
-- name: insert/update "Match User" configuration block in ./sshd.cfg
-  blockinfile:
-    dest: ./ssh.cfg
-    block: |
-      Host 10.5.*
-          User {{ bastion_user }}
-          ProxyCommand ssh -o "StrictHostKeyChecking=no" {{ bastion_user }}@{{ bastion_public_ip }} nc %h %p
-
-      Host {{ bastion_public_ip }}
-      	Hostname {{ bastion_public_ip }}
-      	User {{ bastion_user }}
-      	ControlMaster   auto
-      	ControlPath     ~/.ssh/mux-%r@%h:%p
-      	ControlPersist  15m
-      	IdentityFile    ~/.ssh/hosty-key.pem
+# - name: Remove lines with unwanted occurrences of ListenAddress
+#   local_action: lineinfile
+#                 dest="./hosts"
+#                 regexp="^ansible_host=(?!{{ bastion_public_ip|replace('.', '\.') }}|{{ bastion_public_ip|replace('.', '\.') }})"
+#                 state=absent
+#
+# - name: Listen on public and private IP
+#   local_action: lineinfile
+#                 dest="./hosts"
+#                 line={{ item.line }}
+#                 insertafter={{ item.insertafter }}
+#   with_items:
+#     - { line: "bastion ansible_host={{ bastion_public_ip }}", insertafter: "^[awshosts]" }
+#
+# - name: insert/update "Match User" configuration block in ./sshd.cfg
+#   blockinfile:
+#     dest: ./ssh.cfg
+#     block: |
+#       Host 10.5.*
+#               User {{ bastion_user }}
+#               ProxyCommand ssh -o "StrictHostKeyChecking=no" {{ bastion_user }}@{{ bastion_public_ip }} nc %h %p
+#
+#       Host {{ bastion_public_ip }}
+#         	  Hostname {{ bastion_public_ip }}
+#         	  User {{ bastion_user }}
+#         	  ControlMaster   auto
+#         	  ControlPath     ~/.ssh/mux-%r@%h:%p
+#         	  ControlPersist  15m
+#         	  IdentityFile    ~/.ssh/hostykey.pem

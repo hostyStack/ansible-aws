@@ -8,5 +8,5 @@
     - name: remove key pair
       ec2_key:
         region: "{{ region }}"
-        name: imagination-key
+        name: hostykey
         state: absent

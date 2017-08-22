@@ -64,17 +64,16 @@
 #                 insertafter="ansible_host=" line={{ natclient_private_ip }}
 #   with_items: "{{ natclient_facts.instances }}"
 
-- name: Remove lines with unwanted occurrences of ListenAddress
-  local_action: lineinfile
-                dest="./hosts"
-                regexp="^ansible_host=(?!{{ natclient_private_ip|replace('.', '\.') }}|{{ natclient_private_ip|replace('.', '\.') }})"
-                state=absent
-
-- name: Listen on public and private IP
-  local_action: lineinfile
-                dest="./hosts"
-                line={{ item.line }}
-                insertafter={{ item.insertafter }}
-  with_items:
-    # - { line: "bastion ansible_host={{ natclient_private_ip }}", insertafter: "^#?bastion" }
-    - { line: "natclient ansible_host={{ natclient_private_ip }}", insertafter: 'bastion {{ natclient_private_ip|replace(".", "\.") }}' }
+# - name: Remove lines with unwanted occurrences of ListenAddress
+#   local_action: lineinfile
+#                 dest="./hosts"
+#                 regexp="^ansible_host=(?!{{ natclient_private_ip|replace('.', '\.') }}|{{ natclient_private_ip|replace('.', '\.') }})"
+#                 state=absent
+#
+# - name: Listen on public and private IP
+#   local_action: lineinfile
+#                 dest="./hosts"
+#                 line={{ item.line }}
+#                 insertafter={{ item.insertafter }}
+#   with_items:
+#     - { line: "natclient ansible_host={{ natclient_private_ip }}", insertafter: 'bastion {{ bastion_public_ip|replace(".", "\.") }}' }

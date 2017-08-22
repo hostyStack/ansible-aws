@@ -8,23 +8,24 @@
   vars:
 
 # Global AWS Variables
-    region: eu-central-1
+    region: eu-west-2
     vpc_name: dev
 
  # VPC Variables
     vpc_cidr: 10.5.0.0/16
     public_subnet_1_cidr: 10.5.0.0/24
-    public_subnet_1_az: eu-central-1a
+    public_subnet_1_az: eu-west-2a
     public_subnet_2_cidr: 10.5.1.0/24
-    public_subnet_2_az: eu-central-1b
+    public_subnet_2_az: eu-west-2b
     private_subnet_1_cidr: 10.5.2.0/24
-    private_subnet_1_az: eu-central-1a
+    private_subnet_1_az: eu-west-2a
     private_subnet_2_cidr: 10.5.3.0/24
-    private_subnet_2_az: eu-central-1b
+    private_subnet_2_az: eu-west-2b
 
-# Bastion Variables
-    ami_id: "ami-1e339e71"
-    keypair_name: "hosty-key"
+# Bastion Variables (Ubuntu 16.04)
+    ami_id: "ami-996372fd"  #eu-west-2
+    # ami_id: "ami-1e339e71"  #eu-central-1
+    keypair_name: "hostykey"
 
 # RDS Variables
     rds_user: root
@@ -43,9 +44,9 @@
   - natclient
   - rds
 
-- hosts: natclient
-  become: yes
-
-  roles:
-  - common
-  - mysql-client
+# - hosts: natclient
+#   become: yes
+#
+#   roles:
+#   - common
+#   - mysql-client

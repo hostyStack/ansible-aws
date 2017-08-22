@@ -8,3 +8,4 @@
      - mysql-client-core-5.7
     #  - libmysqlclient-dev
      - mysql-client
+    #  - python-mysqldb

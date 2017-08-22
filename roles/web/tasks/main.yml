@@ -1,15 +1,15 @@
 ---
 # # tasks file for web
-- name: "Get Private Subnet ID"
+- name: "Get Public Subnet ID"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
-      "tag:Name": "{{ vpc_name }}-private1"
-  register: private_subnet_1
+      "tag:Name": "{{ vpc_name }}-public1"
+  register: public_subnet_1
 
 - name: Subnet ID
   debug:
-    var: private_subnet_1['subnets'][0]['id']
+    var: public_subnet_1['subnets'][0]['id']
 
 - name: Get web SG ID
   ec2_group_facts:
@@ -38,21 +38,21 @@
     count_tag:
       Name: "{{ vpc_name }}-web"
       Environment: Dev
-    vpc_subnet_id: "{{ private_subnet_1['subnets'][0]['id'] }}"
-    assign_public_ip: no
+    vpc_subnet_id: "{{ public_subnet_1['subnets'][0]['id'] }}"
+    assign_public_ip: yes
   register: web_facts
 
 - debug: "var=web_facts"
 
-- name: Capture Web Private IP
+- name: Capture Web Public IP
   set_fact:
-    web_private_ip: "{{ web_facts['instances'][0]['private_ip'] }}"
+    web_public_ip: "{{ web_facts['instances'][0]['public_ip'] }}"
   when: web_facts['instances'] | length > 0
 
-- name: Capture Web Private IP
+- name: Capture Web Public IP
   set_fact:
-    web_private_ip: "{{ web_facts['tagged_instances'][0]['private_ip'] }}"
+    web_public_ip: "{{ web_facts['tagged_instances'][0]['public_ip'] }}"
   when: web_facts['tagged_instances'] | length > 0
 
 # - name: Add Web to hosts file
-#   shell: "echo 'web ansible_host={{ web_private_ip }} ansible_user=ubuntu' >> {{ host_path }};echo '' >> {{ host_path }}"
+#   shell: "echo 'web ansible_host={{ web_public_ip }} ansible_user=ubuntu' >> {{ host_path }};echo '' >> {{ host_path }}"

@@ -1,7 +1,7 @@
 ---
 
 #region: eu-west-2
-#vpc_name: imagination
+#vpc_name: hosty
 #rds_user: root
 #rds_pass: Default_Pass123!
 #rds_instance_type: db.m1.small

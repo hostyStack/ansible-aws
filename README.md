@@ -29,13 +29,13 @@ ansible 2.3.2.0
 
 # Prerequisites:
 
-2. Setup Environment
-3. AWS account Authentication with Ansible
-2. Building the AWS VPC and NAT
-3. Building the Bastion
-4. ~~ Building Web~~
-5. Building natClient and install role mysql-client
-6. Lunch RDS
+1. Setup Environment
+2. AWS account Authentication with Ansible
+3. Building the AWS VPC and NAT
+4. Building the Bastion
+5. ~~ Building Web~~
+6. Building natClient and install role mysql-client
+7. Lunch RDS
 
 # Setup Environment
 
@@ -59,14 +59,14 @@ After installation, create a file named boto and provide the necessary credentia
 
 **Create file `~/.boto`**
 ```
-[Credentials]
-AWS_ACCESS_KEY_ID=""
-AWS_SECRET_ACCESS_KEY=""
+[credentials]
+AWS_ACCESS_KEY_ID =""
+AWS_SECRET_ACCESS_KEY =""
 ```
 
 AWS uses public-key cryptography to secure the login information for your instance. A Linux instance has no password; you use a key pair to log in to your instance securely.
 ```
-$ ansible-playbook hosts keypair.yml
+$ ansible-playbook playbooks/keypair.yml -vvvv
 ```
 
 You need also to set environment variables by specifying your Secret Key and Access Key
@@ -80,11 +80,17 @@ $ export AWS_SECRET_ACCESS_KEY=""
 # Role Variables
 **List of Variables**
 ```
-
+---
+aws_secret_key: required
+aws_access_key: required
+region:
+keypair_name:
+ansible_user:
+bastion_user:
 ```
 
-# Ansible Imagination Dev Site
-To help make the roles reusable and easily updated, the variables were placed in the main site.yml file for configuring all of the aspects from the network, bastion, and RDS.
+# Ansible Hosty Dev Site
+To help make the roles reusable and easily updated, the variables were placed in the main `site.yml` file for configuring all of the aspects from the network, bastion, and RDS.
 
 Example **Site.yml**
 ```
@@ -96,23 +102,23 @@ Example **Site.yml**
   vars:
 
 # Global AWS Variables
-    region: eu-central-1
+    region: eu-west-2
     vpc_name: dev
 
  # VPC Variables
     vpc_cidr: 10.5.0.0/16
     public_subnet_1_cidr: 10.5.0.0/24
-    public_subnet_1_az: eu-central-1a
+    public_subnet_1_az: eu-west-2a
     public_subnet_2_cidr: 10.5.1.0/24
-    public_subnet_2_az: eu-central-1b
+    public_subnet_2_az: eu-west-2b
     private_subnet_1_cidr: 10.5.2.0/24
-    private_subnet_1_az: eu-central-1a
+    private_subnet_1_az: eu-west-2a
     private_subnet_2_cidr: 10.5.3.0/24
-    private_subnet_2_az: eu-central-1b
+    private_subnet_2_az: eu-west-2b
 
-# Bastion Variables
-    ami_id: "ami-1e339e71"
-    keypair_name: "hosty-key"
+# Bastion Variables (Ubuntu 16.04)
+    ami_id: "ami-996372fd"  #eu-west-2
+    keypair_name: "hostykey"
 
 # RDS Variables
     rds_user: root
@@ -138,6 +144,7 @@ Example **Site.yml**
   - common
   - mysql-client
 ```
+> **Note: connection can be tested from bastion/web/natclient to RDS
 
 # Building AWS-VPC
 
@@ -149,13 +156,9 @@ Example **Site.yml**
 – NAT Gateway for Client Instance
 – Security groups to allow specific traffic into specific instances
 
-## [Connecting to a DB Instance Running the MySQL Database Engine](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html)
-
-**Connect to RDS through EC2 < Bastion
-For example, on Linux or OSX**
+# [Connecting to a DB Instance Running the MySQL Database Engine](https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_ConnectToInstance.html)
 
 Set up this tunnel every time you log into your remote EC2 instance and log into it with whatever name you prefer:
-
 
 Modify **ssh.cfg**:
 
@@ -172,29 +175,33 @@ Host {{ bastion_public_ip }}
 	ControlPersist  15m
 	IdentityFile    ~/.ssh/hosty-key.pem
 ```
-Then, just:
+Then, **Connect to RDS through EC2 < Bastion for example, on Linux or OSX**:
 
 ```
-$ ssh -L 3306:dev-rds.cj3xloa8ykzj.eu-central-1.rds.amazonaws.com:3306 10.5.2.57 -F sshd.cfg
-```
+$ ssh -L 3306:dev-rds.cj3xloa8ykzj.eu-central-1.rds.amazonaws.com:3306 10.5.2.57 -F sshd.cfg -v
 
 And you can then access your remote MySQL server as if it was running locally:
 ```
 $ mysql -h dev-rds.cj3xloa8ykzj.eu-central-1.rds.amazonaws.com -P 3306 -u root -p
 ```
 
-## Issues:
+# Issues:
+## Python:
 - If you're using Ansible >2.2.0, you can set the ansible_python_interpreter configuration option to `/usr/bin/python3`: [Python 3 Support](https://docs.ansible.com/ansible/latest/python_3_support.html)
 ```
 ansible my_ubuntu_host -m ping -e 'ansible_python_interpreter=/usr/bin/python3'
 ```
 
-- Then decided to upgrade to the latest version of ansible (2.3+). Then I created a...
-
+- Then decided to upgrade to the latest version of ansible (2.3+). Then I created a **group_vars/all** file and added...
 ```
-group_vars/all
-
-..file and added...
-
 ansible_python_interpreter: /usr/bin/python3
+```
+
+~~- Testing from another ENV Others two solutions help from macOS~~
+```
+---
+- name: install python
+  raw: bash -c "test -e /usr/bin/python || (apt -qqy update && apt install -qqy python python-pip python3 python3-pip)"
+  register: output
+  changed_when: output.stdout != ""
 ```

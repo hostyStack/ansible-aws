@@ -2,7 +2,8 @@
 # Variables here are applicable to all host groups
 
 ansible_user: ubuntu
-ansible_ssh_private_key_file: ~/.ssh/hosty-key.pem
+ansible_ssh_private_key_file: ~/.ssh/hostykey.pem
+
 ansible_python_interpreter: /usr/bin/python3
 
 bastion_user: "ubuntu"

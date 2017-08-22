@@ -1,6 +1,6 @@
 ---
 # tasks file for rds
-- name: "Get Subnet ID for imagination-private1"
+- name: "Get Subnet ID for hosty-private1"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:

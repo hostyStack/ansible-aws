@@ -3,8 +3,8 @@
   connection: local
   gather_facts: no
   vars:
-    region: eu-central-1
-    keypair_name: hosty-key
+    region: eu-west-2
+    keypair_name: hostykey
   tasks:
     - name: create key pair
       ec2_key:

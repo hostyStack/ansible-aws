@@ -1,5 +1,5 @@
 ---
 #region: eu-west-2
-#vpc_name: imagination
+#vpc_name: hosty
 #ec2_id: "ami-785db401"
-#keypair_name: "imagination-key"
+#keypair_name: "hostykey"
