@@ -73,7 +73,7 @@
 
 - name: insert/update "Match User" configuration block in ./sshd.cfg
   blockinfile:
-    dest: ./sshd.cfg
+    dest: ./ssh.cfg
     block: |
       Host 10.5.*
           User {{ bastion_user }}

@@ -1,7 +1,0 @@
----
-- name: create some file
-  local_action: template
-                src=sshd_config.j2 dest=//Users/ZeroDeth/GDrive/Automation/ansible-aws/sshd.cfg
-  tags: sshd
-
-- debug: msg="run on local machine"

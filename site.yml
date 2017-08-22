@@ -38,7 +38,7 @@
       - { param: 'general_log', value: '1' }
 
   roles:
-  # - vpc
+  - vpc
   - bastion
   - natclient
   - rds
