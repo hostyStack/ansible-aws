@@ -1,0 +1,5 @@
+#How do I configure a jump host to access servers that I have no direct access to?
+
+#ansible_ssh_conmon_args:  '-o ProxyCommand="ssh -o StrictHostKeyChecking=no -i {key_file} -W %h:%p -q {user}@{host}"
+# ansible_ssh_common_args: '-t -F ssh.cfg ProxyCommand="ssh -o StrictHostKeyChecking=no -W %h:%p -q ubuntu@54.93.45.177"'
+# ansible_ssh_common_args: '-t -F ssh.cfg ProxyCommand="ssh -o StrictHostKeyChecking=no -W %h:%p -q ubuntu@10.5.2.37"'

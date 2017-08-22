@@ -1,0 +1,80 @@
+---
+# # tasks file for natclient
+- name: "Get Private Subnet ID"
+  ec2_vpc_subnet_facts:
+    region: "{{ region }}"
+    filters:
+      "tag:Name": "{{ vpc_name }}-private1"
+  register: private_subnet_1
+
+- name: Subnet ID
+  debug:
+    var: private_subnet_1['subnets'][0]['id']
+
+- name: Get natclient SG ID
+  ec2_group_facts:
+    region: "{{ region }}"
+    filters:
+      group-name: "{{ vpc_name }}-natclient"
+  register: natclient_sg
+
+- name: natClient SG ID
+  debug:
+    var: natclient_sg['security_groups'][0]['group_id']
+
+- name: Create natClient
+  ec2:
+    region: "{{ region }}"
+    key_name: "{{ keypair_name }}"
+    group_id: "{{ natclient_sg['security_groups'][0]['group_id'] }}"
+    instance_type: t2.micro
+    image: "{{ ami_id }}"
+    wait: yes
+    wait_timeout: 500
+    exact_count: 1
+    instance_tags:
+      Name: "{{ vpc_name }}-natclient"
+      Environment: Dev
+    count_tag:
+      Name: "{{ vpc_name }}-natclient"
+      Environment: Dev
+    vpc_subnet_id: "{{ private_subnet_1['subnets'][0]['id'] }}"
+    assign_public_ip: no
+  register: natclient_facts
+
+- debug: "var=natclient_facts"
+
+- name: Capture natClient Private IP
+  set_fact:
+    natclient_private_ip: "{{ natclient_facts['instances'][0]['private_ip'] }}"
+  when: natclient_facts['instances'] | length > 0
+
+- name: Capture natClient Private IP
+  set_fact:
+    natclient_private_ip: "{{ natclient_facts['tagged_instances'][0]['private_ip'] }}"
+  when: natclient_facts['tagged_instances'] | length > 0
+
+# - name: Add natClient to hosts file
+#   shell: "echo 'natclient ansible_host={{ natclient_private_ip }} ansible_user=ubuntu' >> {{ host_path }};echo '' >> {{ host_path }}"
+
+# - name: Add the newly created EC2 instance(s) to the local host group (located inside the directory)
+#   local_action: lineinfile
+#                 dest="./hosts"
+#                 regexp={{ natclient_private_ip }}
+#                 insertafter="ansible_host=" line={{ natclient_private_ip }}
+#   with_items: "{{ natclient_facts.instances }}"
+
+- name: Remove lines with unwanted occurrences of ListenAddress
+  local_action: lineinfile
+                dest="./hosts"
+                regexp="^ansible_host=(?!{{ natclient_private_ip|replace('.', '\.') }}|{{ natclient_private_ip|replace('.', '\.') }})"
+                state=absent
+
+- name: Listen on public and private IP
+  local_action: lineinfile
+                dest="./hosts"
+                line={{ item.line }}
+                insertafter={{ item.insertafter }}
+  with_items:
+    # - { line: "bastion ansible_host={{ natclient_private_ip }}", insertafter: "^#?bastion" }
+    - { line: "natclient ansible_host={{ natclient_private_ip }}", insertafter: 'bastion {{ natclient_private_ip|replace(".", "\.") }}' }

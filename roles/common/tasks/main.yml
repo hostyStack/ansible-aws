@@ -1,24 +1,14 @@
 ---
-- name: Update apt cache if needed.
-  apt: name=* state=latest update_cache=yes cache_valid_time=3600
+- { include: debian.yml, become: yes }
+- { include: ntp.yml, become: yes }
 
-- name: install ntp
-  apt: name=ntp state=present
-  tags: ntp
+# - name: set timezone to Europe/London
+#   timezone:
+#     name: Europe/London
 
-- name: configure ntp file
-  template: src=ntp.conf.j2 dest=/etc/ntp.conf
-  tags: ntp
-  notify: restart ntp
+- name: get the current date and time
+  shell: date
+  register: d
 
-- name: start ntp service
-  service: name=ntp state=started enabled=true
-  tags: ntp
-
-- name: test to see if selinux is running
-  command: getenforce
-  register: sestatus
-  changed_when: false
-
-- name: Disable the firewall (since this is for local dev only).
-  service: name=ufw state=stopped
+- name: print the current date and time
+  debug: var=d.stdout

@@ -1,0 +1,3 @@
+---
+bastion_user: "ubuntu"
+bastion_public_ip: "52.59.240.79"

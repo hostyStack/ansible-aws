@@ -1,0 +1,27 @@
+---
+# - name: Update apt cache if needed.
+#   shell: apt-get -y update && apt-get clean
+
+- name: Update and upgrade apt packages
+  apt:
+    upgrade: dist
+    update_cache: yes
+    cache_valid_time: 3600
+
+# - name: Disable the firewall (since this is for local dev only).
+#   service: name=ufw state=stopped
+
+# - name: reboot server if /var/run/reboot-required exists
+#   command: shutdown -r now
+#   args:
+#     removes: /var/run/reboot-required
+#
+# - name: wait until rebooted
+#   local_action: wait_for host={{ inventory_hostname }} port=22 state=started delay=30
+#
+# - name: give sshd a few seconds to start up fully
+#   raw: echo ssh subsystem online
+#   register: result
+#   until: result.stdout.find("ssh subsystem online") != -1
+#   retries: 50
+#   delay: 10

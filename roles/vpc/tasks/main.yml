@@ -58,6 +58,17 @@
       Name: "{{ vpc_name }}-public1"
   register: public_subnet_1
 
+- name: Create Public Subnet 2
+  ec2_vpc_subnet:
+    state: present
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    cidr: "{{ public_subnet_2_cidr }}"
+    region: "{{ region }}"
+    az: "{{ public_subnet_2_az }}"
+    resource_tags:
+      Name: "{{ vpc_name }}-public2"
+  register: public_subnet_2
+
 - name: Subnet Public ID
   debug:
     var: public_subnet_1['subnet']['id']
@@ -73,21 +84,80 @@
   debug:
     var: igw['gateway_id']
 
-- name: Set up public subnet route table
+- name: Set up Public Subnet Route Table
   ec2_vpc_route_table:
     vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
     region: "{{ region }}"
     state: present
     tags:
-      Name: "{{ vpc_name }}-public1"
+      Name: "{{ vpc_name }}-public"
     subnets:
-      - "{{ private_subnet_1['subnet']['id'] }}"
-      - "{{ private_subnet_2['subnet']['id'] }}"
       - "{{ public_subnet_1['subnet']['id'] }}"
+      - "{{ public_subnet_2['subnet']['id'] }}"
     routes:
       - dest: 0.0.0.0/0
         gateway_id: "{{ igw['gateway_id'] }}"
   register: public_route_table
+
+# get NAT gateway if already exists
+- name: get NAT gateway id using subnet id
+  shell: "aws ec2 describe-nat-gateways --filter Name=subnet-id,Values={{ public_subnet_1['subnet']['id'] }}"
+  register: nat_gateway
+  changed_when: false
+- set_fact:
+    nat_gateway_info: "{{ nat_gateway.stdout | from_json }}"
+- set_fact:
+    nat_network_interface_id: "{{ nat_gateway_info.NatGateways[0].NatGatewayAddresses[0].NetworkInterfaceId }}"
+  when:
+    - nat_gateway_info.NatGateways[0] is defined
+    - nat_gateway_info.NatGateways[0].NatGatewayAddresses[0] is defined
+- set_fact:
+    nat_network_interface_id: null
+  when: nat_network_interface_id is undefined
+
+- debug: var=nat_network_interface_id
+
+# Create new Elastic IP
+- name: Allocate a new elastic IP without associating it to anything
+  ec2_eip:
+    state: present
+    device_id: "{{ nat_network_interface_id }}"
+    region: "{{ region }}"
+    in_vpc: true
+    release_on_disassociation: true
+    reuse_existing_ip_allowed: true
+  register: elastic_ip_info
+
+- debug: var=elastic_ip_info
+
+# Create new NAT service
+- name: Create new NAT Gateway service using an allocation-id
+  ec2_vpc_nat_gateway:
+    state: present
+    if_exist_do_not_create: true
+    subnet_id: "{{ public_subnet_1['subnet']['id'] }}"
+    allocation_id: "{{ elastic_ip_info.allocation_id }}"
+    region: "{{ region }}"
+    wait: true
+  register: nat_gateway_info
+
+- debug: var=nat_gateway_info
+
+- name: Set up Private Subnet Route Table
+  ec2_vpc_route_table:
+    vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
+    region: "{{ region }}"
+    state: present
+    tags:
+      Name: "{{ vpc_name }}-private"
+    subnets:
+      - "{{ private_subnet_1['subnet']['id'] }}"
+      - "{{ private_subnet_2['subnet']['id'] }}"
+    routes:
+      - dest: 0.0.0.0/0
+        gateway_id: "{{  nat_gateway_info.nat_gateway_id }}"
+  register: private_route_table
+  when: nat_gateway_info.changed
 
 - name: Bastion Security group
   ec2_group:
@@ -107,9 +177,9 @@
   debug:
     var: bastion_sg['group_id']
 
-- name: Web Security group
+- name: natClient Security group
   ec2_group:
-    name: "{{ vpc_name }}-web"
+    name: "{{ vpc_name }}-natclient"
     state: present
     description: Security group for SSH Bastion to get into the servers
     vpc_id: "{{ vpc_facts['vpcs'][0]['id'] }}"
@@ -123,11 +193,11 @@
         from_port: 22
         to_port: 22
         group_id: "{{ bastion_sg['group_id'] }}"
-  register: web_sg
+  register: natclient_sg
 
-- name: Web Security group ID
+- name: natClient Security group ID
   debug:
-    var: web_sg['group_id']
+    var: natclient_sg['group_id']
 
 - name: MySQL Security group
   ec2_group:
@@ -148,7 +218,7 @@
       - proto: tcp
         from_port: 3306
         to_port: 3306
-        group_id: "{{ web_sg['group_id'] }}"
+        group_id: "{{ natclient_sg['group_id'] }}"
   register: mysql_sg
 
 - name: MySQL Security group ID

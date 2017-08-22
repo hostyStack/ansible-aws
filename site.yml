@@ -4,9 +4,6 @@
 - name: Deploy RDS Infratructure
   hosts: localhost
   connection: local
-  # become: yes
-  # become_method: su
-  # remote_user: ubuntu
   gather_facts: false
   vars:
 
@@ -16,16 +13,18 @@
 
  # VPC Variables
     vpc_cidr: 10.5.0.0/16
-    public_subnet_1_cidr: 10.5.1.0/24
+    public_subnet_1_cidr: 10.5.0.0/24
     public_subnet_1_az: eu-central-1a
+    public_subnet_2_cidr: 10.5.1.0/24
+    public_subnet_2_az: eu-central-1b
     private_subnet_1_cidr: 10.5.2.0/24
-    private_subnet_1_az: eu-central-1b
+    private_subnet_1_az: eu-central-1a
     private_subnet_2_cidr: 10.5.3.0/24
-    private_subnet_2_az: eu-central-1c
+    private_subnet_2_az: eu-central-1b
 
 # Bastion Variables
-    ec2_id: "ami-1e339e71"
-    key_pair: "imagination-key"
+    ami_id: "ami-1e339e71"
+    keypair_name: "hosty-key"
 
 # RDS Variables
     rds_user: root
@@ -39,30 +38,14 @@
       - { param: 'general_log', value: '1' }
 
   roles:
-  # - keygen
-   - vpc
-   - bastion
-   - rds
+  # - vpc
+  - bastion
+  - natclient
+  - rds
 
-- hosts: bastion
+- hosts: natclient
   become: yes
 
-  pre_tasks:
-    - name: Update apt cache if needed.
-      shell: apt-get update && apt-get clean
-
   roles:
-  # - bastion
-  # - common
+  - common
   - mysql-client
-
-# - hosts: web
-#   become: yes
-#
-#   pre_tasks:
-#     - name: Update apt cache if needed.
-#       shell: apt-get update && apt-get clean
-#
-#   roles:
-#   # - web
-#

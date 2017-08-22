@@ -1,18 +1,18 @@
 ---
-# tasks file for aws-rds
+# tasks file for rds
 - name: "Get Subnet ID for imagination-private1"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
       "tag:Name": "{{ vpc_name }}-private1"
-  register: subnet_private_1
+  register: subnet_private1
 
 - name: "Get Subnet ID for {{ vpc_name }}-private2"
   ec2_vpc_subnet_facts:
     region: "{{ region }}"
     filters:
       "tag:Name": "{{ vpc_name }}-private2"
-  register: subnet_private_2
+  register: subnet_private2
 
 - name: Get MySQL SG ID
   ec2_group_facts:
@@ -28,8 +28,8 @@
     name: "{{ vpc_name }}-subnetgroup"
     description: Subnet Group for {{ vpc_name }}
     subnets:
-      - "{{ subnet_private_1['subnets'][0]['id'] }}"
-      - "{{ subnet_private_2['subnets'][0]['id'] }}"
+      - "{{ subnet_private1['subnets'][0]['id'] }}"
+      - "{{ subnet_private2['subnets'][0]['id'] }}"
   register: subnet_group_results
 
 - name: Subnet group results

@@ -1,0 +1,14 @@
+---
+- name: install ntp
+  apt: name=ntp state=present update_cache=yes
+  tags: ntp
+
+# - name: ensure ntp is configured
+#   template: src=ntp.conf.j2 dest=/etc/ntp.conf
+#   tags: ntp
+#   notify:
+#     - restart ntp
+
+- name: ensure ntp is running and enabled
+  service: name=ntp state=started enabled=true
+  tags: ntp
