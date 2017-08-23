@@ -3,19 +3,6 @@ This playbook deploys the whole AWS (VPC, Bastion, Web, and natClient(mySQL-Clie
 
 - Ubuntu LTS server (currently "trusty" 16.04)
 
-## Imagination Task:
-Write an Ansible Role that includes a number of tasks:
-- Power up an RDS instance and set the security group so that only the EC2 instance (below) can connect to it on port 3306 (via internal IP addresses)
-- Power up an EC2 instance, running Ubuntu 16.04 and the latest version of the software package mysql-client
-
-**Instructions should be provided on how to run the role, including how we can pass in the following parameters:**
-- instance sizes
-- AWS region
-- AWS creds
-- DB creds
-
-We will run on one of our test AWS environments. The goal here is to produce a reusable role.
-
 # Requirements:
 ```
 $ ansible --version
@@ -25,7 +12,6 @@ ansible 2.3.2.0
   python version = 2.7.13
 ```
 > **Note:** RDS may take up to 30 minutes to deploy the instance
-
 
 # Prerequisites:
 
@@ -44,9 +30,9 @@ In order to run this playbook you need to have the following installed on your m
 - Python 2.7.x
 - pip - Python package manager
 - pip modules:
- - ansible - Ansible tool
- - awscli - Amazon CLI for Python
- - boto - AWS libraries
+  - ansible - Ansible tool
+  - awscli - Amazon CLI for Python
+  - boto - AWS libraries
 
 Run following command to install required modules
 ```
@@ -144,7 +130,7 @@ Example **Site.yml**
   - common
   - mysql-client
 ```
-> **Note: connection can be tested from bastion/web/natclient to RDS
+> **Note:** connection can be tested from bastion/web/natclient to RDS
 
 # Building AWS-VPC
 
